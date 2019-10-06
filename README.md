@@ -1,6 +1,6 @@
 # COEXISTENCE
 
-contient tout ce qu'il faut pour la perf **Coexistence** hors session `live`
+contient tout ce qu'il faut pour la perf **Coexistence** hors session live
 
 - reconnaissance vocale (`lithosys`)
 - traduction (thread `lithosys`)

@@ -1,0 +1,8 @@
+
+.project
+.settings/
+.settings/*
+g5WebCtrl/node_modules/*
+lithosys/src/__pycache__/*
+lithosys/src/eng_to_ipa/__pycache__/*
+old/*

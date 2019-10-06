@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf8">
+	 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
+        <style>
+		
+		body {
+			font-family:sans-serif;
+			background-color: black;
+			color: lightgray;
+		}
+		p {
+			padding:0;
+			margin:0;
+			font-size:10px;
+			line-height:1;
+		}
+		.sentence {
+			color: white;
+		}
+		.translation {
+			color: lightgray;
+			font-style: italic;
+		}
+		.phonetic {
+			color: gray;
+			font-style: italic;			
+		}
+		.universal {
+			color: pink;
+			font-size: 14px;
+			font-family: "SOTOS_OCHANDO";
+		}
+		.error {
+			color: red;
+		}
+		.success {
+			color: white;
+		}
+        .bold {
+			font-weight: bold;
+		}
+		#header {
+			margin: auto;
+			padding: 10px;
+			position: fixed;
+			top: 0px;
+			left: 0px;
+			background-color: #222222;
+			width: 100%;
+		}
+		#header p {
+			font-size:14px;
+		}
+		#content {
+			margin-top: 40px;
+		}
+		#config {
+			position: fixed;
+			top: 10px;
+			right: 10px;
+		}
+		.red {
+			color: red;
+		}
+        </style>
+        <title>LITHOSYS</title>
+    </head>
+    <body>
+    <div id='header'>
+    </div>
+    <div id='content'>
+    </div>
+        <script>
+	        $content = $('#content');
+			var recognition = new webkitSpeechRecognition();
+			if(recognition == null) {
+				$('#header').append('<p class="error bold"><b>!!! ASR Bridge ERROR: webkitSpeechRecognition not available !!!</b></p>');
+			} else {
+				$('#header').append('<p class="success bold"><b>LITHOSYS READY</b></p>');
+			}
+		
+        	$lang = '';
+	        $dest = '';
+	       	$ip = ''
+        
+	        //console.log("POST /CONFIG");
+	        $.post('/getconfig', {}, function(data){
+				if(data)
+				{
+					//console.log('RESULT : '+data.lang+' '+data.dest+' '+data.ip);
+					$lang = data.lang;
+					$dest = data.dest;
+					$ip = data.ip;
+					$max = data.max;
+					$('#header').append('<p id="config"><b>'+$lang+'</b> | <b>'+$dest+'</b> | <b>'+$ip+'</b> | <b>'+$max+'</b></p>');
+				}
+			});
+       
+        	recognition.continuous = true;
+			recognition.interimResults = true;
+			recognition.maxAlternatives = 1;
+			if($lang == 'fr')
+				recognition.lang = "fr-FR";
+			else if($lang == 'en')
+				recognition.lang = "en-US";
+			recognition.onresult = detect;
+
+			recognition.onend = function(event) {
+				recognition.start();
+				console.log('recognition: end');
+			}
+			recognition.onstart = function(event) {
+				console.log('recognition: start');
+			}
+
+			recognition.start();
+
+			var timer = null;
+			var $words = $('<p class="words"></p>');
+			$content.append($words);	
+			function detect(event) {
+				if(timer != null) {
+					clearTimeout(timer);
+				}
+				//console.log("results : "+event.results.length);
+				for (var i = event.resultIndex; i < event.results.length; i++) {
+					console.log((event.results[i].isFinal ? "S " : "W ")+event.results[i][0].transcript);
+					if(event.results[i][0].confidence < .5) continue;
+					//$content.append('<p class="words">'+event.results[i][0].transcript+'</p>');
+					$.post('/result', {
+						transcript: String(event.results[i][0].transcript), 
+						confidence: event.results[i][0].confidence, 
+						sentence: event.results[i].isFinal ? 1 : 0
+					}, function(data){
+						//console.log('result: '+JSON.stringify(data));
+						if(data.silent == false)
+						{
+							//console.log(data.sentence);
+							if(data.sentence == true)
+							{
+								$("#content p:last-child").remove()
+								//$content.remove($content.children().last());	
+								$content.append('<p class="sentence">'+data.message+'</p>'); // BOLD
+								//$content.append('<p class="translation">'+data.translation+'</p>')
+								//$content.append('<p class="phonetic">'+data.phonetic+'</p>');
+								//$content.append('<p class="universal">'+data.universal+'</p>');
+								$words = $('<p class="words"></p>');
+								$content.append($words);	
+							} else {
+								$words.text(data.message);
+							}
+						}
+						window.scrollBy({ top: 100, left: 0, behavior: 'smooth' });
+					});
+					timer = setTimeout(function() {
+						recognition.stop();
+						timer = null;
+					}, 5000);
+				}
+			}
+
+			setInterval(function() {
+			   $.get('/need_restart', function(data) {
+				   if(data == 'yes') {
+						console.log('/need_restart');
+						window.location.reload(false);
+				   }
+			   })
+			}, 100);
+        </script>
+    </body>
+</html>

@@ -1,7 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 
-echo local IP should be : 192.168.3.11
-echo chataigne IP should be : 192.168.3.10
+printf "\033[0m\n"
+printf "local IP should be : \033[37;40m 192.168.3.11 \033[0m\n"
+printf "chataigne IP should be : \033[37;40m 192.168.3.10 \033[0m\n"
+
+ifconfig en0 | awk '$1 == "inet" {print "en0: \033[37;40m " $2 " \033[0m"}'
+ifconfig en1 | awk '$1 == "inet" {print "en1: \033[37;40m " $2 " \033[0m"}'
+ifconfig lo0 | awk '$1 == "inet" {print "lo0: \033[37;40m " $2 " \033[0m"}'
+
+echo " "
 
 cd $(dirname $0)
 
@@ -21,7 +28,9 @@ open -a "Google Chrome" http://g5interspecies.herokuapp.com/controller.html &
 echo opening LITHOSYS webpage
 open -a "Google Chrome" http://localhost:8080 &
 
-echo opening LITHOSYS_DIST
+echo " "
+
+echo Starting LITHOSYS
 export PYTHONPATH=:$(dirname $0)/lithosys/src/
 cd $(dirname $0)/lithosys/src
 python3 -W ignore ./lithosys.py

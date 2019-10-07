@@ -5,7 +5,7 @@ from pyosc import Server, Client
 
 PIXA_API_KEY = '11796917-495df626c35f7f8d0c3831455'
 
-COLOR = '\033[93m'
+YELLOW = '\033[93m'
 
 class PixaImage():
     def __init__(self, api_key):
@@ -28,6 +28,7 @@ class PixaImage():
                per_page=20,
                callback='',
                pretty='false'):
+        
         payload = {
             'key': self.api_key,
             'q': q,
@@ -47,13 +48,17 @@ class PixaImage():
             'pretty': pretty
         }
 
-        resp = get(self.root_url, params=payload)
-
-        if resp.status_code == 200:
-            return resp.json()
-        else:
-            raise ValueError(resp.text)
-
+        try:
+            resp = get(self.root_url, params=payload)
+    
+            if resp.status_code == 200:
+                return resp.json()
+            else:
+                raise ValueError(resp.text)
+        except:
+            print(YELLOW + "* Cannot connect to Pixabay")
+            return
+        
 class PixaThread(Thread):
     def __init__(self, keyword, osc_client, mode='all'):
         Thread.__init__(self)
@@ -62,7 +67,7 @@ class PixaThread(Thread):
         self.mode=mode
         
     def run(self):
-        print(COLOR + "Pixabay | Thread Start")
+        print(YELLOW + "Pixabay | Thread Start")
         self.osc_client.send('/pixa/done',0)    
         image = PixaImage(PIXA_API_KEY)
         ims = image.search(q=self.keyword,
@@ -76,10 +81,13 @@ class PixaThread(Thread):
                            page=1,
                            per_page=100)
 
+        if not ims :
+            return
+        
         n = ims["totalHits"]
         #print(n)
         if(n == 0):
-            print(COLOR + "Pixabay | Searching for "+self.keyword + " - not found")
+            print(YELLOW + "Pixabay | Searching for "+self.keyword + " - not found")
             self.osc_client.send('/pixa/done',1)    
         else:
             mi = min(n, 100)
@@ -87,7 +95,7 @@ class PixaThread(Thread):
             #RANDOM IMAGES
             if(self.mode == 'random'):
                 r = random.randint(0,mi)
-                print(COLOR + "Pixabay | Searching for "+self.keyword + " + found : " + str(r) + " / " + str(mi))
+                print(YELLOW + "Pixabay | Searching for "+self.keyword + " + found : " + str(r) + " / " + str(mi))
                 #print(ims["hits"][r])
                 url = ims["hits"][r]['webformatURL'] #largeImageURL
                 self.osc_client.send('/pixa/keyword', self.keyword)
@@ -97,7 +105,7 @@ class PixaThread(Thread):
                 
             #ALL IMAGES
             elif(self.mode == 'all'):
-                print(COLOR + "Pixabay | Searching for "+self.keyword + " + found : " + str(mi))
+                print(YELLOW + "Pixabay | Searching for "+self.keyword + " + found : " + str(mi))
                 self.osc_client.send('/pixa/keyword', self.keyword)
                 for x in range(0,mi):
                     url = ims["hits"][x]['webformatURL']
@@ -129,7 +137,7 @@ class PixabaSearch:
             sys.exit(0)
         elif key == '/mode':
             self.mode = rest
-            print ("-mode " + self.mode)
+            #print ("-mode " + self.mode)
         elif key == '/search':
             self.search(rest)
         else:

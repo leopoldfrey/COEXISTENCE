@@ -3,7 +3,7 @@ from requests import get
 from threading import Thread
 from pyosc import Server, Client
 
-COLOR = '\033[95m'
+PINK = '\033[95m'
 
 class InatImage():
     def __init__(self):
@@ -22,14 +22,16 @@ class InatImage():
             'locale': locale
         }
 
-        #print self.root_url
-        #print payload
-        resp = get(self.root_url, params=payload)
-
-        if resp.status_code == 200:
-            return resp.json()
-        else:
-            raise ValueError(resp.text)
+        try:
+            resp = get(self.root_url, params=payload)
+    
+            if resp.status_code == 200:
+                return resp.json()
+            else:
+                raise ValueError(resp.text)
+        except:
+            print(PINK + "* Cannot connect to Inaturalist")
+            return
         
 class InatThread(Thread):
     def __init__(self, keyword, osc_client, mode='all', size='medium_url'):
@@ -40,7 +42,7 @@ class InatThread(Thread):
         self.size=size
         
     def run(self):
-        print(COLOR + "Inaturalist | Thread Start")
+        print(PINK + "Inaturalist | Thread Start")
         self.osc_client.send('/inat/done',0)    
         image = InatImage()
         ims = image.search(q=self.keyword,
@@ -49,17 +51,20 @@ class InatThread(Thread):
                            per_page=100)
 
         #print ims
+        
+        if not ims :
+            return
         n = ims["total_results"]
         #print(n)
         if(n == 0):
-            print(COLOR + "Inaturalist | Searching for "+ self.keyword + " - not found")
+            print(PINK + "Inaturalist | Searching for "+ self.keyword + " - not found")
             self.osc_client.send('/inat/done',1)    
         else:
             #RANDOM IMAGES
             if(self.mode == 'random'):
                 i = len(ims['results'][0]["record"]["taxon_photos"])
                 r = random.randint(0,i-1)
-                print(COLOR + "Inaturalist | Searching for "+ self.keyword + " + found : " + str(r) + " / " + str(i))
+                print(PINK + "Inaturalist | Searching for "+ self.keyword + " + found : " + str(r) + " / " + str(i))
                 url = ims["results"][0]["record"]["taxon_photos"][r]["photo"][self.size] # "square_url" "small_url" "medium_url" "large_url" "original_url"
                 name = ims["results"][0]["record"]["name"]
                 self.osc_client.send('/inat/keyword', self.keyword)
@@ -71,7 +76,7 @@ class InatThread(Thread):
             #ALL IMAGES
             elif(self.mode == 'all'):
                 i = len(ims['results'][0]["record"]["taxon_photos"])
-                print(COLOR + "Inaturalist | Searching for "+ self.keyword + " + found : " + str(i))
+                print(PINK + "Inaturalist | Searching for "+ self.keyword + " + found : " + str(i))
                 name = ims["results"][0]["record"]["name"]
                 self.osc_client.send('/inat/keyword', self.keyword)
                 self.osc_client.send('/inat/name', name)
@@ -107,10 +112,10 @@ class InaturalistSearch:
             sys.exit(0)
         elif key == '/mode':
             self.mode = rest
-            print ("-mode "+self.mode)
+            #print ("-mode "+self.mode)
         elif key == '/size':
             self.size = rest
-            print ("-size "+self.size)
+            #print ("-size "+self.size)
         elif key == '/search':
             self.search(rest)
         else:

@@ -9,11 +9,12 @@ from InaturalistSearch import InatThread
 from PixabaySearch import PixaThread
 
 CONST_MAXWORDS = 10
-ENDC = '\033[0m'
-COLOR = '\033[95m'
-TRANS = '\033[92m'
+END = '\033[0m'
+WHITE = '\033[0;37;48m'
+TRANS = '\033[96m'
 BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
+BW = '\033[30m\033[47m'
         
 class TransThread(Thread):
     def __init__(self, textinput, dest='en', osc_client=None, lang='fr'):
@@ -49,7 +50,6 @@ class Lithosys:
     global is_restart_needed
 
     def __init__(self, osc_server_port=45001, osc_client_host='127.0.0.1', osc_client_port=45000, http_server_port=8080, lang = 'fr', dest = 'en', mode='all', size='medium_url'):
-        print(ENDC)
         self.osc_client = Client(osc_client_host, osc_client_port)
         self.osc_server = Server('0.0.0.0', osc_server_port, self.callback)
         
@@ -76,9 +76,9 @@ class Lithosys:
         self.mode = mode
         self.size=size
         
-        print()
-        print(BOLD + '*** Please open chrome at http://127.0.0.1:%d' % self.http_server_port)
-        print(ENDC)
+        print(END + WHITE)
+        print(BW + '*** Please open chrome at http://127.0.0.1:%d ***' % self.http_server_port)
+        print(END + WHITE)
 
         self.http_server.get('/', callback=self.index)
         self.http_server.post('/getconfig', callback=self.config)
@@ -97,16 +97,20 @@ class Lithosys:
             self.silent = False
         elif address == '/search':
             if len(args) >= 1 :
-                print (ENDC + "searching \""+str(args[0])+"\"")
+                print (END + WHITE + "searching "+BW+" "+str(args[0])+" "+END+"")
                 self.search(str(args[0]))
+        elif address == '/translate':
+            if len(args) >= 1 :
+                print (END + WHITE + "translating "+BW+" "+str(args[0])+" "+END+"")
+                self.translate(str(args[0]))
         elif address == '/mode':
             if len(args) >= 1 :
                 self.mode = str(args[0])
-                print (ENDC + "-mode "+self.mode)
+                print (END + WHITE + "-mode "+self.mode)
         elif address == '/size':
             if len(args) >= 1 :
                 self.size = str(args[0])
-                print (ENDC + "-size "+self.size)
+                print (END + WHITE + "-size "+self.size)
         elif address == '/exit':
             self.osc_server.stop()
             self.http_server.close()
@@ -151,7 +155,7 @@ class Lithosys:
             #print("SPLITTED    _ "+str(start)+" - "+str(end))
             spl = spl[start:end]
             mess = ''.join(str(e)+" " for e in spl)
-            print(ENDC + "splitted    -|" + mess + "|-")
+            print(END + WHITE + "splitted    -|" + mess + "|-")
             if mess :
                 #self.osc_client.send('/litho/words', mess.upper())
                 self.translate(mess)
@@ -162,7 +166,7 @@ class Lithosys:
             #print("SENTENCE    _ "+str(start)+" - "+str(end))
             spl = spl[start:end]
             mess = ''.join(str(e)+" " for e in spl)
-            print(ENDC + "phrase      -|" + mess + "|-")
+            print(END + WHITE + "phrase      -|" + mess + "|-")
             if mess :
                 #self.osc_client.send('/litho/words', mess.upper())
                 self.translate(mess)
@@ -172,7 +176,7 @@ class Lithosys:
             #print("WORDS       _ "+str(start)+" - "+str(end))
             spl = spl[start:end]
             mess = ''.join(str(e)+" " for e in spl)
-            print(ENDC + "mots        -|" + mess + "|-")
+            print(END + WHITE + "mots        -|" + mess + "|-")
             if mess :
                 self.osc_client.send('/litho/words', mess.upper())
             
@@ -202,8 +206,8 @@ class Lithosys:
         message = message.replace("… ", " ")
         message = message.replace('\xe2\x80\x99', "'")
         
-        thd1 = InatThread(message, self.osc_client, self.mode, self.size)
-        thd1.start();
+        #thd1 = InatThread(message, self.osc_client, self.mode, self.size)
+        #thd1.start();
         thd2 = PixaThread(message, self.osc_client, self.mode)
         thd2.start();
 
@@ -226,7 +230,7 @@ class Lithosys:
         return {'lang':self.lang, 'dest':self.dest, 'ip':self.osc_client.getIp(), 'max':CONST_MAXWORDS}
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':    
     if len(sys.argv) == 1:
         Lithosys();
     if len(sys.argv) == 3:

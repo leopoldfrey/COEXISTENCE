@@ -168,7 +168,7 @@ class Lithosys:
             mess = ''.join(str(e)+" " for e in spl)
             print(END + WHITE + "phrase      -|" + mess + "|-")
             if mess :
-                #self.osc_client.send('/litho/words', mess.upper())
+                self.osc_client.send('/litho/words', mess.upper())
                 self.translate(mess)
         else:
             start = self.splFloor*CONST_MAXWORDS
@@ -206,8 +206,8 @@ class Lithosys:
         message = message.replace("… ", " ")
         message = message.replace('\xe2\x80\x99', "'")
         
-        #thd1 = InatThread(message, self.osc_client, self.mode, self.size)
-        #thd1.start();
+        thd1 = InatThread(message, self.osc_client, self.mode, self.size)
+        thd1.start();
         thd2 = PixaThread(message, self.osc_client, self.mode)
         thd2.start();
 

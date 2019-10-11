@@ -174,7 +174,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 178.0, 83.0, 50.0, 22.0 ],
-									"text" : "67"
+									"text" : "90"
 								}
 
 							}
@@ -1082,7 +1082,7 @@
 					"patching_rect" : [ 580.0, 473.0, 317.0, 25.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 6.5, 141.0, 315.0, 25.0 ],
-					"text" : "start success dictionary u439000795"
+					"text" : "start success dictionary u828000787"
 				}
 
 			}
@@ -1463,6 +1463,8 @@
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 0,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 0
 					}
 ,
@@ -1898,19 +1900,19 @@
 			}
  ],
 		"parameters" : 		{
-			"obj-8" : [ "live.text[8]", "live.text", 0 ],
-			"obj-1" : [ "live.text[4]", "live.text", 0 ],
 			"obj-28" : [ "live.numbox", "live.numbox", 0 ],
-			"obj-20" : [ "live.text[11]", "live.text", 0 ],
-			"obj-12" : [ "live.text[9]", "live.text", 0 ],
-			"obj-47" : [ "live.text[2]", "live.text", 0 ],
-			"obj-48" : [ "live.text[3]", "live.text", 0 ],
-			"obj-44" : [ "live.text[1]", "live.text", 0 ],
-			"obj-43" : [ "live.text", "live.text", 0 ],
-			"obj-3" : [ "live.text[5]", "live.text", 0 ],
-			"obj-26" : [ "start", "live.text", 0 ],
 			"obj-51" : [ "live.text[6]", "live.text", 0 ],
 			"obj-52" : [ "live.text[7]", "live.text", 0 ],
+			"obj-26" : [ "start", "live.text", 0 ],
+			"obj-44" : [ "live.text[1]", "live.text", 0 ],
+			"obj-20" : [ "live.text[11]", "live.text", 0 ],
+			"obj-12" : [ "live.text[9]", "live.text", 0 ],
+			"obj-43" : [ "live.text", "live.text", 0 ],
+			"obj-8" : [ "live.text[8]", "live.text", 0 ],
+			"obj-1" : [ "live.text[4]", "live.text", 0 ],
+			"obj-3" : [ "live.text[5]", "live.text", 0 ],
+			"obj-47" : [ "live.text[2]", "live.text", 0 ],
+			"obj-48" : [ "live.text[3]", "live.text", 0 ],
 			"obj-14" : [ "live.text[10]", "live.text", 0 ],
 			"parameterbanks" : 			{
 

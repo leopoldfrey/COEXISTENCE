@@ -217,7 +217,7 @@ class Lithosys:
 
     def translate(self, message):
         # THREAD TRANSLATE
-        thd = TransThread(message, self.dest, self.osc_client);
+        thd = TransThread(message, self.dest, self.osc_client, self.lang);
         thd.start();
         
     def need_restart(self):

@@ -8,7 +8,6 @@ import eng_to_ipa as ipa
 from InaturalistSearch import InatThread
 from PixabaySearch import PixaThread
 
-CONST_MAXWORDS = 10
 END = '\033[0m'
 WHITE = '\033[0;37;48m'
 TRANS = '\033[96m'
@@ -49,7 +48,7 @@ class TransThread(Thread):
 class Lithosys:
     global is_restart_needed
 
-    def __init__(self, osc_server_port=45001, osc_client_host='127.0.0.1', osc_client_port=45000, http_server_port=8080, lang = 'fr', dest = 'en', mode='all', size='medium_url'):
+    def __init__(self, osc_server_port=45001, osc_client_host='127.0.0.1', osc_client_port=45000, http_server_port=8080, lang = 'fr', dest = 'en', mode='all', size='medium_url', maxwords=10):
         self.osc_client = Client(osc_client_host, osc_client_port)
         self.osc_server = Server('0.0.0.0', osc_server_port, self.callback)
         
@@ -75,6 +74,8 @@ class Lithosys:
         self.splModuloPrev = 0
         self.mode = mode
         self.size=size
+        
+        self.maxwords = maxwords
         
         print(END + WHITE)
         print(BW + '*** Please open chrome at http://127.0.0.1:%d ***' % self.http_server_port)
@@ -141,8 +142,8 @@ class Lithosys:
         self.splLen = len(spl)
         
         
-        self.splFloor = math.floor(self.splLen / CONST_MAXWORDS)
-        self.splModulo = self.splLen % CONST_MAXWORDS
+        self.splFloor = math.floor(self.splLen / self.maxwords)
+        self.splModulo = self.splLen % self.maxwords
         
         #print("MODULO "+str(self.splModulo)+" / "+str(self.splFloor)+" / "+str(self.splLen))
         
@@ -150,7 +151,7 @@ class Lithosys:
             return {'silent':True}
         
         if self.splFloorPrev < self.splFloor :
-            start = self.splFloorPrev*CONST_MAXWORDS
+            start = self.splFloorPrev*self.maxwords
             end = start + self.splModuloPrev + 1
             #print("SPLITTED    _ "+str(start)+" - "+str(end))
             spl = spl[start:end]
@@ -161,23 +162,25 @@ class Lithosys:
                 self.translate(mess)
                 self.sentence = True
         elif self.sentence :
-            start = self.splFloor*CONST_MAXWORDS
+            start = self.splFloor*self.maxwords
             end = start + self.splModulo + 1
             #print("SENTENCE    _ "+str(start)+" - "+str(end))
             spl = spl[start:end]
             mess = ''.join(str(e)+" " for e in spl)
             print(END + WHITE + "phrase      -|" + mess + "|-")
             if mess :
+                self.osc_client.send('/litho/universal_direct', ''.join(c for c in mess.upper() if c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '))
                 self.osc_client.send('/litho/words', mess.upper())
                 self.translate(mess)
         else:
-            start = self.splFloor*CONST_MAXWORDS
+            start = self.splFloor*self.maxwords
             end = start + self.splModulo + 1
             #print("WORDS       _ "+str(start)+" - "+str(end))
             spl = spl[start:end]
             mess = ''.join(str(e)+" " for e in spl)
             print(END + WHITE + "mots        -|" + mess + "|-")
             if mess :
+                self.osc_client.send('/litho/universal_direct', ''.join(c for c in mess.upper() if c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '))
                 self.osc_client.send('/litho/words', mess.upper())
             
         self.splFloorPrev = self.splFloor
@@ -227,14 +230,18 @@ class Lithosys:
         return static_file('index.html',root='')
     
     def config(self):
-        return {'lang':self.lang, 'dest':self.dest, 'ip':self.osc_client.getIp(), 'max':CONST_MAXWORDS}
+        return {'lang':self.lang, 'dest':self.dest, 'ip':self.osc_client.getIp(), 'max':self.maxwords}
 
 
 if __name__ == '__main__':    
     if len(sys.argv) == 1:
         Lithosys();
-    if len(sys.argv) == 3:
+    elif len(sys.argv) == 2:
+        Lithosys(maxwords=int(sys.argv[1]))
+    elif len(sys.argv) == 3:
         Lithosys(lang = sys.argv[1], dest = sys.argv[2]);
+    elif len(sys.argv) == 4:
+        Lithosys(lang = sys.argv[1], dest = sys.argv[2], maxwords=int(sys.argv[3]));
     elif len(sys.argv) == 5:
         Lithosys(int(sys.argv[1]), sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))
     elif len(sys.argv) == 7:

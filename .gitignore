@@ -7,3 +7,6 @@ lithosys/src/__pycache__/*
 lithosys/src/eng_to_ipa/__pycache__/*
 old/*
 OSC-route.mxo/*
+h.shell.mxo/Contents/Info.plist
+h.shell.mxo/Contents/MacOS/h.shell
+h.shell.mxo/Contents/PkgInfo

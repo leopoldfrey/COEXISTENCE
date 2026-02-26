@@ -17,7 +17,7 @@ cd $(dirname $0)
 echo manually open LIVE SET
 
 echo opening COEXISTENCE MAX PATCH
-open ./COEXISTENCE_4.maxpat &
+open ./COEXISTENCE_5.maxpat &
 
 echo opening g5WebCtrl MAX PATCH
 open ./g5WebCtrl/g5WebCtrl.maxpat &
@@ -33,5 +33,5 @@ echo " "
 echo Starting LITHOSYS
 export PYTHONPATH=:$(dirname $0)/lithosys/src/
 cd $(dirname $0)/lithosys/src
-python3 -W ignore ./lithosys.py 10
+python3 -W ignore ./lithosys.py es en 10
 

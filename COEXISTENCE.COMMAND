@@ -33,5 +33,5 @@ echo " "
 echo Starting LITHOSYS
 export PYTHONPATH=:$(dirname $0)/lithosys/src/
 cd $(dirname $0)/lithosys/src
-python3 -W ignore ./lithosys.py es en 10
+python3 -W ignore ./lithosys.py 10
 
